@@ -21,8 +21,7 @@ module.exports = (bot, botname) ->
 	See list of supported programming /languages.
 	See /about for useful links.
 	"""
-
-	bot.on-text //^[\/!]lang(uage)?s(@#botname)?\s*$//i, (msg) ->
+	bot.on-text //^/(start\s+)?lang(uage)?s(@#botname)?\s*$//i, (msg) ->
 		lodash langs
 		.keys!
 		.sortBy!
@@ -30,6 +29,7 @@ module.exports = (bot, botname) ->
 		.join ', '
 		|> bot.send-message msg.chat.id, _,
 			parse_mode: 'Markdown'
+
 
 
 	bot.on-text //^/([\w.#+]+)(@#botname)?\s*$//i, (msg, [, command]) ->

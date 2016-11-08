@@ -85,6 +85,7 @@ bot.on 'inline_query', (query) ->
 		else
 			error = new Error "Invalid query syntax."
 			error.description = "It's <language> <code> [/stdin <stdin>]"
+			error.switch_pm_parameter = ''
 			Promise.reject error
 
 	execution
@@ -111,17 +112,25 @@ bot.on 'inline_query', (query) ->
 			inline_query_id: query.id
 	.catch (e) ->
 		s = e.to-string!
-		bot.answer-inline-query do
-			query.id
-			[{
-				id: 'test'
-				type: 'article'
-				title: s
-				description: e.description
-				input_message_content:
-					message_text: s
-			}]
-			inline_query_id: query.id
+		if e.switch_pm_parameter?
+			bot.answer-inline-query do
+				query.id
+				[]
+				inline_query_id: query.id
+				switch_pm_parameter: e.switch_pm_parameter
+				switch_pm_text: s
+		else
+			bot.answer-inline-query do
+				query.id
+				[{
+					id: 'test'
+					type: 'article'
+					title: s
+					description: e.description
+					input_message_content:
+						message_text: s
+				}]
+				inline_query_id: query.id
 
 reply = (msg, match_) ->
 	if verbose
@@ -205,6 +214,7 @@ function execute [, lang, name, code, stdin]
 	if typeof lang-id != 'number'
 		error = new Error "Unknown language: #lang."
 		error.quiet = not name
+		error.switch_pm_parameter = 'languages'
 		return Promise.reject error
 
 	request-promise do

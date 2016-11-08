@@ -31,8 +31,10 @@ bot = new Bot token,
 		web-hook:
 			host: '0.0.0.0'
 			port: process.env.PORT || 8000
+			only-first-match: true
 	else
 		polling : true
+		only-first-match: true
 
 (me) <- bot.get-me!.then
 

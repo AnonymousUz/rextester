@@ -2,6 +2,7 @@ require!  {
 	'./langs.json'
 	'./emoji.json'
 	'lodash'
+	'./package.json'
 }
 
 
@@ -18,6 +19,7 @@ module.exports = (bot, botname) ->
 	Line breaks and indentation are supported.
 
 	See list of supported programming /languages.
+	See /about for useful links.
 	"""
 
 	bot.on-text //^[\/!]lang(uage)?s(@#botname)?\s*$//i, (msg) ->
@@ -38,3 +40,29 @@ module.exports = (bot, botname) ->
 				# string.repeat bool <=> if bool then string else ""
 				help-text + tab.repeat command not in ['help', 'start']
 				parse_mode: 'Markdown'
+
+
+	bot.on-text //^/about(@#botname)?\s*$//i, (msg) ->
+		bot.send-message do
+			msg.chat.id
+			"""
+			Created by @GingerPlusPlus.
+
+			Note that the bot uses rextester.com to execute code.
+			"""
+			parse_mode: 'Markdown'
+			disable_web_page_preview: true
+			reply_markup: inline_keyboard:
+				[
+					{
+						text: "Official group"
+						url: "telegram.me/Rextesters"
+					} {
+						text: "Repository"
+						url: ``package``.repository.url
+					} {
+						text: "Rate"
+						url: "https://telegram.me/storebot?start=#botname"
+					}
+				]
+				...

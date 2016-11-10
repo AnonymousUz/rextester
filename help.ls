@@ -34,7 +34,7 @@ module.exports = (bot, botname) ->
 
 	bot.on-text //^/([\w.#+]+)(@#botname)?\s*$//i, (msg, [, command]) ->
 		if (command == 'help' or langs.has-own-property command.to-lower-case!
-				or command == 'start' and msg.chat.type = 'private')
+				or command == 'start' and msg.chat.type == 'private')
 			bot.send-message do
 				msg.chat.id
 				# string.repeat bool <=> if bool then string else ""

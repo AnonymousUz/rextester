@@ -25,6 +25,17 @@ url = process.env.NOW_URL
 
 msgs = {}
 
+secs-to-edit = process.env.SECS_TO_EDIT
+
+if secs-to-edit == void
+	console.warn "SECS_TO_EDIT unspecified, more details in README."
+
+
+if secs-to-edit > 0
+	set-interval do
+		-> msgs := lodash.pick-by msgs, (.ttl -= 1)
+		secs-to-edit * 1000
+
 
 bot = new Bot token,
 	if url?
@@ -153,7 +164,7 @@ reply = (msg, match_) ->
 			msg.chat.id
 			e.to-string!
 			reply_to_message_id: msg.message_id
-	msgs[[msg.chat.id, msg.message_id]] = {reply} unless execution.is-rejected!
+	msgs[[msg.chat.id, msg.message_id]] = {reply, ttl: 2} unless execution.is-rejected!
 
 bot.on-text regex, reply
 

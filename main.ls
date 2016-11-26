@@ -200,12 +200,13 @@ bot.on 'edited_message_text', (msg) ->
 				message_id: old-msg.message_id
 				parse_mode: 'Markdown'
 			.catch ->
-				msgs[[msg.chat.id, msg.message_id]] =
-					reply: bot.send-message do
-						msg.chat.id
-						result
-						reply_to_message_id: msg.message_id
-						parse_mode: 'Markdown'
+				reply = bot.send-message do
+					msg.chat.id
+					result
+					reply_to_message_id: msg.message_id
+					parse_mode: 'Markdown'
+				msgs[[msg.chat.id, msg.message_id]] = {reply}
+				return reply
 		.catch (e) ->
 			processing.then (old-msg) ->
 				bot.edit-message-text do
@@ -213,11 +214,12 @@ bot.on 'edited_message_text', (msg) ->
 					chat_id: old-msg.chat.id
 					message_id: old-msg.message_id
 			.catch ->
-				msgs[[msg.chat.id, msg.message_id]] =
-					reply: bot.send-message do
-						msg.chat.id
-						e.to-string!
-						reply_to_message_id: msg.message_id
+				reply = bot.send-message do
+					msg.chat.id
+					e.to-string!
+					reply_to_message_id: msg.message_id
+				msgs[[msg.chat.id, msg.message_id]] = {reply}
+				return reply
 
 
 function execute [, lang, name, code, stdin]

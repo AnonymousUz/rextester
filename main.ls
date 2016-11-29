@@ -10,6 +10,7 @@ require! {
 	'./help'
 	'./tips'
 	'./emoji.json'
+	'./stats'
 }
 
 Promise.config do
@@ -142,6 +143,8 @@ bot.on 'inline_query', (query) ->
 						message_text: s
 				}]
 				inline_query_id: query.id
+	.tap ->
+		stats.data.users.add query.from.id
 
 reply = (msg, match_) ->
 	if verbose
@@ -158,12 +161,14 @@ reply = (msg, match_) ->
 			result
 			reply_to_message_id: msg.message_id
 			parse_mode: 'Markdown'
+	.tap -> stats.data.users.add msg.from.id
 	.catch quiet: true, -> throw it if msg.chat.type == 'private'
 	.catch (e) ->
 		bot.send-message do
 			msg.chat.id
 			e.to-string!
 			reply_to_message_id: msg.message_id
+
 	msgs[[msg.chat.id, msg.message_id]] = {reply, ttl: 2} unless execution.is-rejected!
 
 bot.on-text regex, reply
@@ -241,6 +246,8 @@ function execute [, lang, name, code, stdin]
 		json: true
 
 	.promise!
+
+	.tap -> stats.data.executions++
 
 
 if url?

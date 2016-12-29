@@ -11,6 +11,7 @@ require! {
 	'./tips'
 	'./emoji.json'
 	'./stats'
+	'./responder': 'Responder'
 }
 
 Promise.config do
@@ -24,18 +25,10 @@ verbose = lodash process.argv
 
 url = process.env.NOW_URL
 
-msgs = {}
-
 secs-to-edit = process.env.SECS_TO_EDIT
 
 if secs-to-edit == void
 	console.warn "SECS_TO_EDIT unspecified, more details in README."
-
-
-if secs-to-edit > 0
-	set-interval do
-		-> msgs := lodash.pick-by msgs, (.ttl -= 1)
-		secs-to-edit * 1000
 
 
 bot = new Bot token,
@@ -47,6 +40,10 @@ bot = new Bot token,
 	else
 		polling : true
 		only-first-match: true
+
+responder = new Responder bot, {
+	ms-to-edit: secs-to-edit * 1000
+}
 
 (me) <- bot.get-me!.then
 
@@ -150,26 +147,16 @@ reply = (msg, match_) ->
 	if verbose
 		console.log msg
 	execution = execute match_
-	bot.send-chat-action msg.chat.id, 'typing' unless execution.is-rejected!
-	reply = execution
+
+	responder.preparing-response-to msg if execution.is-pending!
+
+	execution
 	.tap ->
 		it.Tip = tips.process-output it or tips.process-input msg
+		stats.data.users.add msg.from.id
 	.then format
-	.then (result) ->
-		bot.send-message do
-			msg.chat.id
-			result
-			reply_to_message_id: msg.message_id
-			parse_mode: 'Markdown'
-	.tap -> stats.data.users.add msg.from.id
-	.catch quiet: true, -> throw it if msg.chat.type == 'private'
-	.catch (e) ->
-		bot.send-message do
-			msg.chat.id
-			e.to-string!
-			reply_to_message_id: msg.message_id
+	|> responder.respond-when-ready msg, _, parse_mode: 'Markdown'
 
-	msgs[[msg.chat.id, msg.message_id]] = {reply, ttl: 2} unless execution.is-rejected!
 
 bot.on-text regex, reply
 
@@ -178,53 +165,7 @@ bot.on 'edited_message_text', (msg) ->
 	if not match_
 		return
 
-	context = msgs[[msg.chat.id, msg.message_id]]
-	if not context or context.reply.is-rejected!
-		return reply msg, match_
-
-	context.edit?.cancel!
-
-
-	execution = execute match_
-		.tap ->
-			it.Tip = tips.process-output it or tips.process-input msg
-		.then format
-
-	processing = context.reply.then (old-msg) ->
-		if execution.is-pending!
-			bot.edit-message-text do
-				"#{emoji.hourglass}Processing your edit..."
-				chat_id: old-msg.chat.id
-				message_id: old-msg.message_id
-
-	context.edit = Promise.join context.reply, execution, processing.catch-return!
-		.spread (old-msg, result) ->
-			bot.edit-message-text do
-				result
-				chat_id: old-msg.chat.id
-				message_id: old-msg.message_id
-				parse_mode: 'Markdown'
-			.catch ->
-				reply = bot.send-message do
-					msg.chat.id
-					result
-					reply_to_message_id: msg.message_id
-					parse_mode: 'Markdown'
-				msgs[[msg.chat.id, msg.message_id]] = {reply}
-				return reply
-		.catch (e) ->
-			processing.then (old-msg) ->
-				bot.edit-message-text do
-					e.to-string!
-					chat_id: old-msg.chat.id
-					message_id: old-msg.message_id
-			.catch ->
-				reply = bot.send-message do
-					msg.chat.id
-					e.to-string!
-					reply_to_message_id: msg.message_id
-				msgs[[msg.chat.id, msg.message_id]] = {reply}
-				return reply
+	reply msg, match_
 
 
 function execute [, lang, name, code, stdin]

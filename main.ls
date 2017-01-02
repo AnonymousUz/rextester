@@ -12,6 +12,7 @@ require! {
 	'./emoji.json'
 	'./stats'
 	'./responder': 'Responder'
+	'./answer'
 }
 
 Promise.config do
@@ -79,67 +80,34 @@ bot.on 'inline_query', (query) ->
 	console.log query if verbose
 
 	if not query.query
-		return bot.answer-inline-query do
-			query.id
-			[]
-			inline_query_id: query.id
+		return answer.empty bot, query
 
 	match_ = regex.exec '/' + query.query
 
 	console.log match_ if verbose and match_
 
-	execution =
-		if match_
-			execute match_
-		else
-			error = new Error "Invalid query syntax."
-			error.description = "It's <language> <code> [/stdin <stdin>]"
-			error.switch_pm_parameter = ''
-			Promise.reject error
+	if not match_
+		return answer.switch-pm bot, query, "Invalid query syntax", ''
+
+	execution = execute match_
 
 	execution
 	.then (raw) ->
-		result = lodash.defaults do
-			Language: match_[1]
-			Source: match_[3]
-			Stdin: match_[4]
-			raw
+		[, Language, , Source, Stdin] = match_
+
+		result = lodash.defaults {Language, Source, Stdin}, raw
 		|> format
 
-		bot.answer-inline-query do
-			query.id
-			[{
-				id: 'test'
-				type: 'article'
-				title: raw.Errors || raw.Result  || "Did you forget to output something?"
-				input_message_content:
-					message_text: result
-					parse_mode: 'Markdown'
+		answer.single bot, query, {
+			type: 'article'
+			id: 'test'
+			title: raw.Errors || raw.Result || "Did you forget to output something?"
+			input_message_content:
+				message_text: result
+				parse_mode: 'Markdown'
+		}, cache_time: 0
 
-			}]
-			cache_time: 0
-			inline_query_id: query.id
-	.catch (e) ->
-		s = e.to-string!
-		if e.switch_pm_parameter?
-			bot.answer-inline-query do
-				query.id
-				[]
-				inline_query_id: query.id
-				switch_pm_parameter: e.switch_pm_parameter
-				switch_pm_text: s
-		else
-			bot.answer-inline-query do
-				query.id
-				[{
-					id: 'test'
-					type: 'article'
-					title: s
-					description: e.description
-					input_message_content:
-						message_text: s
-				}]
-				inline_query_id: query.id
+	.catch (error) -> answer.error bot, query, error
 	.tap ->
 		stats.data.users.add query.from.id
 

@@ -34,6 +34,15 @@ if secs-to-edit == void
 
 options =
 	only-first-match: true
+	request:
+		transform: (body, request) ->
+			if not body
+				request.body = request.status-message
+			else
+				data = JSON.parse body
+				if not data.ok
+					request.body = data.description
+			return request
 
 options <<<
 	if url?

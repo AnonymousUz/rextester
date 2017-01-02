@@ -32,15 +32,18 @@ if secs-to-edit == void
 	console.warn "SECS_TO_EDIT unspecified, more details in README."
 
 
-bot = new Bot token,
+options =
+	only-first-match: true
+
+options <<<
 	if url?
 		web-hook:
 			host: '0.0.0.0'
 			port: process.env.PORT || 8000
-		only-first-match: true
 	else
 		polling : true
-		only-first-match: true
+
+bot = new Bot token, options
 
 responder = new Responder bot, {
 	ms-to-edit: secs-to-edit * 1000

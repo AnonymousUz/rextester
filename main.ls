@@ -13,6 +13,7 @@ require! {
 	'./stats'
 	'./responder': 'Responder'
 	'./answer'
+	'./exec-stats'
 }
 
 Promise.config do
@@ -107,6 +108,9 @@ bot.on 'inline_query', (query) ->
 	.then (raw) ->
 		[, Language, , Source, Stdin] = match_
 
+		exec-stats_ = exec-stats.compress raw.Stats
+		delete raw.Stats
+
 		result = lodash.defaults {Language, Source, Stdin}, raw
 		|> format
 
@@ -117,6 +121,12 @@ bot.on 'inline_query', (query) ->
 			input_message_content:
 				message_text: result
 				parse_mode: 'Markdown'
+			reply_markup: inline_keyboard:
+				[
+					text: 'See stats'
+					callback_data: "showExecStats\n#exec-stats_"
+				]
+				...
 		}, cache_time: 0
 
 	.catch (error) -> answer.error bot, query, error
@@ -130,12 +140,39 @@ reply = (msg, match_) ->
 
 	responder.preparing-response-to msg if execution.is-pending!
 
-	execution
+	var exec-stats_
+
+	process = execution
 	.tap ->
+		exec-stats_ := exec-stats.compress it.Stats
+		delete it.Stats
 		it.Tip = tips.process-output it or tips.process-input msg
 		stats.data.users.add msg.from.id
 	.then format
-	|> responder.respond-when-ready msg, _, parse_mode: 'Markdown'
+
+	process.suppress-unhandled-rejections!
+
+	process.finally ->
+		responder.respond-when-ready msg, process,
+			parse_mode: 'Markdown'
+			reply_markup: inline_keyboard:
+				[
+					text: 'See stats'
+					callback_data: "showExecStats\n#exec-stats_"
+				]
+				...
+
+
+bot.on 'callback_query', (query) ->
+	[action, ...data] = query.data.split '\n'
+
+	switch action
+		case 'showExecStats'
+			bot.answer-callback-query do
+				query.id
+				exec-stats.restore data
+				true
+				cache_time: 604800 # 1 week
 
 
 bot.on-text regex, reply

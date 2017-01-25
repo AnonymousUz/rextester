@@ -58,6 +58,13 @@ responder = new Responder bot, {
 	ms-to-edit: secs-to-edit * 1000
 }
 
+_execution-id = 0
+
+function get-execution-id
+	_execution-id++
+	_execution-id %= Number.MAX_SAFE_INTEGER
+	'execution' + _execution-id
+
 (me) <- bot.get-me!.then
 
 botname = me.username
@@ -101,11 +108,17 @@ bot.on 'inline_query', (query) ->
 	if not match_
 		return answer.switch-pm bot, query, "Invalid query syntax", ''
 
+	execution-id = get-execution-id!
+
 	execution = execute match_
 
 	execution
 	.then (raw) ->
 		[, Language, , Source, Stdin] = match_
+
+		context = responder.msgs[execution-id] = {ttl: 3}
+		context.exec-stats = raw.Stats
+		delete raw.Stats
 
 		result = lodash.defaults {Language, Source, Stdin}, raw
 		|> format
@@ -117,6 +130,12 @@ bot.on 'inline_query', (query) ->
 			input_message_content:
 				message_text: result
 				parse_mode: 'Markdown'
+			reply_markup: inline_keyboard:
+				[
+					text: 'See stats'
+					callback_data: "seeExecStats:#execution-id"
+				]
+				...
 		}, cache_time: 0
 
 	.catch (error) -> answer.error bot, query, error
@@ -130,12 +149,38 @@ reply = (msg, match_) ->
 
 	responder.preparing-response-to msg if execution.is-pending!
 
+	execution-id = get-execution-id!
+
 	execution
 	.tap ->
+		context = responder.msgs[execution-id] = {ttl: 3}
+		context.exec-stats = it.Stats
+		delete it.Stats
 		it.Tip = tips.process-output it or tips.process-input msg
 		stats.data.users.add msg.from.id
 	.then format
-	|> responder.respond-when-ready msg, _, parse_mode: 'Markdown'
+	|> responder.respond-when-ready msg, _,
+		parse_mode: 'Markdown'
+		reply_markup: inline_keyboard:
+			[
+				{
+					text: 'See stats'
+					callback_data: "seeExecStats:#execution-id"
+				}
+			]
+			...
+
+bot.on 'callback_query', (query) ->
+	[action, ...data] = query.data.split ':'
+	switch action
+		case 'seeExecStats'
+			[execution-id] = data
+			context = responder.msgs[execution-id]
+			bot.answer-callback-query do
+				query.id
+				context.exec-stats || 'Not available'
+				Boolean context.exec-stats # show alert
+				cache_time: 604800 # 1 week
 
 
 bot.on-text regex, reply

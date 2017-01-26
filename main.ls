@@ -160,6 +160,10 @@ reply = (msg, match_) ->
 					text: 'See stats'
 					callback_data: "showExecStats\n#exec-stats_"
 				]
+				[
+					text: 'Share'
+					switch_inline_query: msg.text.slice 1
+				]
 				...
 
 

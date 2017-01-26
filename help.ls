@@ -65,12 +65,8 @@ module.exports = (bot, botname) ->
 			parse_mode: 'Markdown'
 
 
-	bot.on-text //^/([\w.#+]+)(@#botname)?\s*$//i, (msg, [, command]) ->
-		if (command == 'help' or langs.has-own-property command.to-lower-case!
-				or command == 'start' and msg.chat.type == 'private')
-			stats.data.missing-source++ if command not in ['help', 'start']
-			bot.send-message do
-				msg.chat.id
-				# string.repeat bool <=> if bool then string else ""
-				help-text + tab.repeat command not in ['help', 'start']
-				parse_mode: 'Markdown'
+	bot.on-text //^/(help|start)(@#botname)?\s*$//i, (msg, [, command]) ->
+		bot.send-message do
+			msg.chat.id
+			help-text
+			parse_mode: 'Markdown'

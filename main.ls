@@ -14,6 +14,7 @@ require! {
 	'./responder': 'Responder'
 	'./answer'
 	'./exec-stats'
+	'./gimme-code'
 }
 
 Promise.config do
@@ -134,6 +135,8 @@ bot.on 'inline_query', (query) ->
 		stats.data.users.add query.from.id
 
 reply = (msg, match_) ->
+	return if msg._handled
+	msg._handled = true
 	if verbose
 		console.log msg
 	execution = execute match_
@@ -178,15 +181,12 @@ bot.on 'callback_query', (query) ->
 				true
 				cache_time: 604800 # 1 week
 
+gimme-code bot, botname, regex, reply
 
 bot.on-text regex, reply
 
 bot.on 'edited_message_text', (msg) ->
-	match_ = regex.exec msg.text
-	if not match_
-		return
-
-	reply msg, match_
+	bot.process-update message: msg
 
 
 function execute [, lang, name, code, stdin]

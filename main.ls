@@ -141,33 +141,45 @@ reply = (msg, match_) ->
 		console.log msg
 	execution = execute match_
 
-	responder.preparing-response-to msg if execution.is-pending!
 
+	execution
+	|> respond msg, _,
+		share: true
+		tip: true
+
+
+function respond msg, execution, options = {}
 	var exec-stats_
+
+	responder.preparing-response-to msg if execution.is-pending!
 
 	process = execution
 	.tap ->
 		exec-stats_ := exec-stats.compress it.Stats
 		delete it.Stats
-		it.Tip = tips.process-output it or tips.process-input msg
+		it.Tip = tips.process-output it or tips.process-input msg if options.tip
 		stats.data.users.add msg.from.id
 	.then format
 
 	process.suppress-unhandled-rejections!
 
+	buttons = [
+		[
+			text: 'See stats'
+			callback_data: "showExecStats\n#exec-stats_"
+		]
+	]
+
+	if options.share
+		buttons.push [
+			text: 'Share'
+			switch_inline_query: msg.text.slice 1
+		]
+
 	process.finally ->
 		responder.respond-when-ready msg, process,
 			parse_mode: 'Markdown'
-			reply_markup: inline_keyboard:
-				[
-					text: 'See stats'
-					callback_data: "showExecStats\n#exec-stats_"
-				]
-				[
-					text: 'Share'
-					switch_inline_query: msg.text.slice 1
-				]
-				...
+			reply_markup: inline_keyboard: buttons
 
 
 bot.on 'callback_query', (query) ->

@@ -13,7 +13,7 @@ format-string = 'Ok, give me some %s code to execute'
 module.exports = (bot, botname, regex, reply) ->
 
 	bot.on-text //^/([\w.#+]+)(@#botname)?\s*$//i, (msg, [, command, username]) ->
-		language = lodash.chain(command).lower-case!upper-first!value!
+		language = command.to-lower-case! |> lodash.upper-first
 		if langs.has-own-property command.to-lower-case!
 			stats.data.missing-source++
 			bot.send-message do

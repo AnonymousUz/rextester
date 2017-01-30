@@ -15,6 +15,8 @@ require! {
 	'./answer'
 	'./exec-stats'
 	'./gimme-code'
+	'language-detect'
+	'scanf': {sscanf}
 }
 
 Promise.config do
@@ -199,6 +201,26 @@ bot.on-text regex, reply
 
 bot.on 'edited_message_text', (msg) ->
 	bot.process-update message: msg
+
+format-string = 'Ok, give me some %s code to execute'
+
+bot.on 'document', (msg) ->
+	reply-to = msg.reply_to_message
+
+	if ((reply-to and reply-to.from.username == botname
+			and language = sscanf reply-to.text, format-string)
+
+			or msg.chat.type == 'private')
+
+		file_name = msg.document.file_name
+
+		bot.get-file-link msg.document.file_id
+		.then request-promise.get
+		.then (code) ->
+			lang = language || language-detect.contents file_name, code
+			execute [, lang, , code]
+		|> respond msg, _
+
 
 
 function execute [, lang, name, code, stdin]

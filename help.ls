@@ -19,6 +19,8 @@ module.exports = (bot, botname) ->
 
 	Line breaks and indentation are supported.
 
+	I'll also try to execute files pm'ed to me.
+
 	See list of supported programming /languages.
 	See /about for useful links.
 	"""

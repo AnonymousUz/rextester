@@ -48,13 +48,6 @@ options =
 					request.body = data.description
 			return request
 
-options <<<
-	if url?
-		web-hook:
-			host: '0.0.0.0'
-			port: process.env.PORT || 8000
-	else
-		polling : true
 
 bot = new Bot token, options
 
@@ -62,7 +55,11 @@ responder = new Responder bot, {
 	ms-to-edit: secs-to-edit * 1000
 }
 
-(me) <- bot.get-me!.then
+function run-async generator
+	Promise.coroutine(generator)!
+
+*<- run-async
+me = yield bot.get-me!
 
 botname = me.username
 
@@ -247,6 +244,9 @@ function execute [, lang, name, code, stdin]
 
 
 if url?
-	bot.set-web-hook "#url/#token"
+	yield bot.open-web-hook!
+	yield bot.set-web-hook "#url/#token"
+else
+	yield bot.start-polling!
 
 console.info 'Bot started.'

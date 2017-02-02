@@ -68,11 +68,11 @@ help bot, botname
 function format
 	lodash it
 	.pickBy! # ignore empty values
+	.map-values lodash.escape
 	.map (val, key) ->
 		"""
-		*#key*: ```
-		#{val.trim!}
-		```
+		<b>#key</b>:
+		<pre>#{val.trim!}</pre>
 		"""
 	.join '\n'
 
@@ -120,7 +120,7 @@ bot.on 'inline_query', (query) ->
 			title: raw.Errors || raw.Result || "Did you forget to output something?"
 			input_message_content:
 				message_text: result
-				parse_mode: 'Markdown'
+				parse_mode: 'HTML'
 			reply_markup: inline_keyboard:
 				[
 					text: 'See stats'
@@ -177,7 +177,7 @@ function respond msg, execution, options = {}
 
 	process.finally ->
 		responder.respond-when-ready msg, process,
-			parse_mode: 'Markdown'
+			parse_mode: 'HTML'
 			reply_markup: inline_keyboard: buttons
 
 

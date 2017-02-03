@@ -19,7 +19,6 @@ module.exports = (bot, botname, regex, reply) ->
 			bot.send-message do
 				msg.chat.id
 				util.format format-string, language
-				parse_mode: 'Markdown'
 				reply_to_message_id: msg.message_id
 				reply_markup:
 					force_reply: true

@@ -74,7 +74,7 @@ function format
 		<b>#key</b>:
 		<pre>#{val.trim!}</pre>
 		"""
-	.join '\n'
+	.join '\n\n'
 
 regex = //^/
 	([\w.#+]+) # language

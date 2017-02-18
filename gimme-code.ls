@@ -46,4 +46,4 @@ module.exports = (bot, botname, regex, reply) ->
 		if (reply-to and reply-to.from.username == botname
 				and language = sscanf reply-to.text, format-string)
 			text = "/#language #{msg.text}"
-			reply msg with {text}, regex.exec text
+			reply msg with {text, _2part: true}, regex.exec text

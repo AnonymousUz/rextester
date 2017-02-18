@@ -150,7 +150,13 @@ reply = (msg, match_) ->
 function respond msg, execution, options = {}
 	var exec-stats_
 
-	responder.preparing-response-to msg if execution.is-pending!
+	need-remove-keyboard = msg._2part and not msg._edit
+
+	if execution.is-pending!
+		# fails when message we were trying to edit has remove_keyboard
+		responder.preparing-response-to msg
+		# .suppressUnhandledRejections didn't work here
+		.catch lodash.noop
 
 	process = execution
 	.bind {}
@@ -177,7 +183,12 @@ function respond msg, execution, options = {}
 	process.reflect!.then ->
 		responder.respond-when-ready msg, process,
 			parse_mode: 'HTML'
-			reply_markup: inline_keyboard: @buttons
+			reply_markup:
+				if need-remove-keyboard
+					remove_keyboard: true
+					selective: true
+				else
+					inline_keyboard: @buttons
 
 
 bot.on 'callback_query', (query) ->
@@ -196,6 +207,7 @@ gimme-code bot, botname, regex, reply
 bot.on-text regex, reply
 
 bot.on 'edited_message_text', (msg) ->
+	msg._edit = true
 	bot.process-update message: msg
 
 format-string = 'Ok, give me some %s code to execute'

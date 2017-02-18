@@ -12,6 +12,16 @@ format-string = 'Ok, give me some %s code to execute'
 
 module.exports = (bot, botname, regex, reply) ->
 
+	bot.on-text //^/cancel(@#botname)?\s*//i, (msg) ->
+		bot.send-message do
+			msg.chat.id
+			'Cancelled'
+			reply_to_message_id: msg.message_id
+			reply_markup:
+				remove_keyboard: true
+				selective: true
+
+
 	bot.on-text //^/([\w.#+]+)(@#botname)?\s*$//i, (msg, [, command, username]) ->
 		language = command.to-lower-case! |> lodash.upper-first
 		if langs.has-own-property command.to-lower-case!
@@ -30,7 +40,8 @@ module.exports = (bot, botname, regex, reply) ->
 				reply_to_message_id: msg.message_id
 
 
-	bot.on 'text', (msg) ->
+	<- process.next-tick
+	bot.on-text ////, (msg) ->
 		reply-to = msg.reply_to_message
 		if (reply-to and reply-to.from.username == botname
 				and language = sscanf reply-to.text, format-string)

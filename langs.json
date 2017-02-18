@@ -92,5 +92,17 @@
 
 	"postgresql": 34,
 
-	"oracle": 35
+	"oracle": 35,
+
+	"swift": 37,
+
+	"bash": 38,
+
+	"ada": 39,
+
+	"erlang": 40,
+
+	"elixir": 41,
+
+	"ocaml": 42
 }

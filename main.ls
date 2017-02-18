@@ -189,6 +189,12 @@ function respond msg, execution, options = {}
 					selective: true
 				else
 					inline_keyboard: @buttons
+			# err-options
+			{
+				reply_markup:
+					remove_keyboard: true
+					selective: true
+			}
 
 
 bot.on 'callback_query', (query) ->

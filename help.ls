@@ -28,10 +28,14 @@ module.exports = (bot, botname) ->
 		lodash langs
 		.keys!
 		.sortBy!
-		.map -> "`#it`"
+		.map ->
+			if msg.chat.type == 'private' and it == /^\w+$/
+				"/#it"
+			else
+				"<code>/#it</code>"
 		.join ', '
 		|> bot.send-message msg.chat.id, _,
-			parse_mode: 'Markdown'
+			parse_mode: 'HTML'
 
 
 	bot.on-text //^/about(@#botname)?\s*$//i, (msg) ->

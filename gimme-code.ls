@@ -47,3 +47,8 @@ module.exports = (bot, botname, regex, reply) ->
 				and language = sscanf reply-to.text, format-string)
 			text = "/#language #{msg.text}"
 			reply msg with {text, _2part: true}, regex.exec text
+
+		else if msg.chat.type == 'private'
+			bot.send-message do
+				msg.chat.id
+				"Sorry, I couldn't understand that, do you need /help?"

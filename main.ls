@@ -148,8 +148,6 @@ reply = (msg, match_) ->
 
 
 function respond msg, execution, options = {}
-	var exec-stats_
-
 	need-remove-keyboard = msg._2part and not msg._edit
 
 	if execution.is-pending!
@@ -158,16 +156,20 @@ function respond msg, execution, options = {}
 		# .suppressUnhandledRejections didn't work here
 		.catch lodash.noop
 
+	remove_keyboard =
+		remove_keyboard: true
+		selective: true
+
+	err-options = reply_markup: remove_keyboard
+
+
 	process = execution
-	.bind {}
-	.tap ->
-		exec-stats_ := exec-stats.compress it.Stats
+	.then ->
+		exec-stats_ = exec-stats.compress it.Stats
 		delete it.Stats
 		it.Tip = tips.process-output it or tips.process-input msg if options.tip
 		stats.data.users.add msg.from.id
-	.then format
-	.tap ->
-		@buttons = [
+		buttons = [
 			[
 				text: 'See stats'
 				callback_data: "showExecStats\n#exec-stats_"
@@ -175,26 +177,23 @@ function respond msg, execution, options = {}
 		]
 
 		if options.share
-			@buttons.push [
+			buttons.push [
 				text: 'Share'
 				switch_inline_query: msg.text.slice 1
 			]
 
-	process.reflect!.then ->
-		responder.respond-when-ready msg, process,
-			parse_mode: 'HTML'
-			reply_markup:
-				if need-remove-keyboard
-					remove_keyboard: true
-					selective: true
-				else
-					inline_keyboard: @buttons
-			# err-options
-			{
+		return
+			res: format it
+			res-options:
+				parse_mode: 'HTML'
 				reply_markup:
-					remove_keyboard: true
-					selective: true
-			}
+					if need-remove-keyboard
+						remove_keyboard
+					else
+						inline_keyboard: buttons
+
+	|> responder.respond-object msg, _, err-options
+
 
 
 bot.on 'callback_query', (query) ->

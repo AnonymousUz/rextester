@@ -52,6 +52,25 @@ module.exports = class Responder
 				@bot.send-chat-action msg.chat.id, 'typing'
 
 
+	respond-object: (msg, promise, err-options) ->
+		context = @_get-context msg
+
+		context.edit?.cancel!
+		context.reply = null if context.reply?.is-rejected!
+
+		reply = context.reply
+
+		process = Promise.resolve(promise)
+		.then ({res-options, res}) ~>
+			@_respond msg, reply, res, res-options
+		.catch  (err) ~> @_respond msg, reply, err, err-options
+
+		if context.reply?
+			context.edit  = process
+		else
+			context.reply = process
+
+
 	respond-when-ready: (msg, promise, res-options, err-options) ->
 		context = @_get-context msg
 

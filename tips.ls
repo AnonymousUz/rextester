@@ -1,3 +1,7 @@
+require! 'lodash': _
+
+require! './emoji.json'
+
 exports.process-input = (msg) ->
 	rand = Math.random!
 	switch
@@ -7,3 +11,13 @@ exports.process-input = (msg) ->
 exports.process-output = (o) ->
 	| o.Errors or o.Result == ""
 		=> "Mistake? Edit your message, I'll adjust my response."
+
+gimmme-code-tips =
+	'Send it as text, or pass a file'
+	'Changed your mind? /cancel'
+	...
+
+exports.gimme-code = ->
+	rand = Math.random!
+	if rand < 0.4
+		_.sample(gimmme-code-tips)

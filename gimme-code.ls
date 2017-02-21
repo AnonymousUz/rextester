@@ -6,9 +6,17 @@ require! 'util'
 
 require! './langs.json'
 require! './stats'
+require! './tips.ls'
 
 
 format-string = 'Ok, give me some %s code to execute'
+
+function format-tip tip
+	if tip
+		'\n' + tip
+	else
+		''
+
 
 module.exports = (bot, botname, regex, reply) ->
 
@@ -28,7 +36,7 @@ module.exports = (bot, botname, regex, reply) ->
 			stats.data.missing-source++
 			bot.send-message do
 				msg.chat.id
-				util.format format-string, language
+				util.format format-string, language, format-tip tips.gimme-code!
 				reply_to_message_id: msg.message_id
 				reply_markup:
 					force_reply: true

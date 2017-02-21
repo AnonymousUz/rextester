@@ -4,7 +4,10 @@ require! './emoji.json'
 
 exports.process-input = (msg) ->
 	rand = Math.random!
+	text-lower = msg.text.to-lower-case!
 	switch
+	| text-lower.starts-with '/php' and not text-lower.includes '<?php'
+		=> "I think you meant to wrap your code in `<?php`, `?>` tags"
 	| msg.entities?.1?.type not in ['pre', 'code'] and rand < 0.1
 		=> "Wrap your code in triple backticks to display it in monospace."
 

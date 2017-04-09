@@ -100,7 +100,7 @@ bot.on 'inline_query', (query) ->
 	console.log match_ if verbose and match_
 
 	if not match_
-		return answer.switch-pm bot, query, "Invalid query syntax", ''
+		return answer.switch-pm bot, query, "Invalid query syntax", 'help'
 
 	execution = execute match_
 
@@ -208,6 +208,9 @@ bot.on 'callback_query', (query) ->
 				cache_time: 604800 # 1 week
 
 gimme-code bot, botname, regex, reply
+
+bot.on-text //^/start\s+([\w.#+]+)\s*$//i, (msg, [, command]) ->
+	bot.process-update(message: msg with {text: '/' + command})
 
 bot.on-text regex, reply
 

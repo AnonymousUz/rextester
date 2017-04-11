@@ -1,5 +1,7 @@
 #!./node_modules/.bin/lsc --const
 
+'use strict'
+
 # requiring it first, so I can enable cancellation
 # before doing anything else
 

@@ -1,3 +1,5 @@
+'use strict'
+
 require! {
 	'bluebird': Promise
 	'lodash'

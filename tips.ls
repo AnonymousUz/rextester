@@ -1,3 +1,5 @@
+'use strict'
+
 require! 'lodash': _
 
 require! './emoji.json'

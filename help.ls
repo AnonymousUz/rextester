@@ -1,9 +1,11 @@
+'use strict'
+
 require!  {
 	'./langs.json'
 	'./emoji.json'
 	'lodash'
 	'./objects': {bot}
-	'./package.json'
+	'./package.json': package_
 	'./stats'
 }
 
@@ -51,7 +53,7 @@ export about = (msg) ->
 					url: "telegram.me/Rextesters"
 				} {
 					text: "Repository"
-					url: ``package``.repository.url
+					url: package_.repository.url
 				} {
 					text: "Rate"
 					url: "https://telegram.me/storebot?start=#botname"

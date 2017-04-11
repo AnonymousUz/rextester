@@ -1,6 +1,8 @@
+'use strict'
+
 require! {
 	'duration': 'Duration'
-	'./package.json'
+	'./package.json': package_
 }
 
 module.exports =
@@ -16,5 +18,5 @@ module.exports =
 
 		*#{@data.missing-source}* times users didn't supply source code.
 
-		Version: *#{``package``.version}*.
+		Version: *#{package_.version}*.
 		"""

@@ -16,7 +16,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "start": "lsc main.ls",
+    "start": "lsc --const main.ls",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

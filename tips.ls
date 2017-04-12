@@ -14,6 +14,8 @@ exports.process-input = (msg) ->
 		=> "Wrap your code in triple backticks to display it in monospace."
 
 exports.process-output = (o) ->
+	| o.Result == "" and not o.Errors
+		=> "If you want to see the results of your code, I suggest printing them to stdout."
 	| o.Errors or o.Result == ""
 		=> "Mistake? Edit your message, I'll adjust my response."
 

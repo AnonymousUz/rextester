@@ -49,6 +49,8 @@ module.exports = (query) ->
 				...
 		}, cache_time: 0
 
+	.tap ->
+		stats.data.by-type-of-query.inline++
 	.catch (error) -> answer.error bot, query, error
 	.tap ->
 		stats.data.users.add query.from.id

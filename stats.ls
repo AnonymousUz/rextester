@@ -11,12 +11,23 @@ module.exports =
 		started-at: new Date
 		users: new Set
 		missing-source: 0
+		with-stdin: 0
+		by-type-of-query:
+			inline: 0
+			documents: 0
+			text-msgs: 0
 	md: -> """
 		Uptime: *#{new Duration @data.started-at .to-string!}*
 
-		During that time, I executed *#{@data.executions}* snippets of code for *#{@data.users.size}* users.
+		Users: *#{@data.users.size}*
 
-		*#{@data.missing-source}* times users didn't supply source code.
+		*#{@data.executions}* successfully executed code requests:
+		» *#{@data.by-type-of-query.text-msgs}* via text messages
+		(includes *#{@data.missing-source}* two-parts, and edits)
+		» *#{@data.by-type-of-query.inline}* via inline queries
+		» *#{@data.by-type-of-query.documents}* via documents (files)
+
+		*#{@data.with-stdin}* of the requests used a non-empty stdin.
 
 		Version: *#{package_.version}*.
 		"""

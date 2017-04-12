@@ -12,6 +12,7 @@ require! './objects': {
 	bot
 	respond
 }
+require! './stats'
 
 
 module.exports = (msg) ->
@@ -24,9 +25,11 @@ module.exports = (msg) ->
 
 		file_name = msg.document.file_name
 
-		bot.get-file-link msg.document.file_id
+		(bot.get-file-link msg.document.file_id
 		.then request-promise.get
 		.then (code) ->
 			lang = language || language-detect.contents file_name, code
 			execute [, lang, , code]
 		|> respond msg, _
+		).tap ->
+			stats.data.by-type-of-query.documents++

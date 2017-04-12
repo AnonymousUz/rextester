@@ -41,7 +41,9 @@ export function execute [, lang, name, code, stdin]
 
 	.promise!
 
-	.tap -> stats.data.executions++
+	.tap ->
+		stats.data.executions++
+		stats.data.with-stdin++ if stdin
 
 
 export function command cmd, args

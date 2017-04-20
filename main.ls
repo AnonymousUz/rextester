@@ -95,6 +95,22 @@ bot.on-text regex, core-command-handler
 bot.on-text ////, gimme-code.anything
 
 
+# small hack, wraps all of the callbacks above
+# to add additional check
+# not elegant, not future-proof
+# but it's the only DRY approach I can think of
+
+# for my next bot, I'll choose a framework
+# which has neat way of implementing this
+# I'm interested in like 4 of them
+# but I can't decide which one to use
+bot._text-regexp-callbacks .= map ({regexp, callback}) -> {
+	regexp
+	callback: (msg) ->
+		callback ... if not msg.forward_from or msg.chat.type == 'private'
+}
+
+
 bot.on 'inline_query', inline-handler
 bot.on 'callback_query', callback-handler
 

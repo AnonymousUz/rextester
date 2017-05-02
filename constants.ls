@@ -21,13 +21,21 @@ export function format
 	.join '\n\n'
 
 
-export function execute [, lang, name, code, stdin]
-	lang-id = langs[lang.to-lower-case!]
-	if typeof lang-id != 'number'
+export execute = Promise.coroutine ([, lang, name, code, stdin], uid) ->*
+	lang-obj = yield alias.resolve uid, lang
+
+	switch lang-obj.type
+	| 'nothing'
 		error = new Error "Unknown language: #lang."
 		error.quiet = not name
 		error.switch_pm_parameter = 'languages'
 		return Promise.reject error
+	| 'choice', 'unambiguous'
+		possibilities = lang-obj.resolved
+		lang-id = langs[possibilities[0]]
+	| 'resolved'
+		lang-id = lang-obj.resolved
+	| otherwise throw new Error 'wtf'
 
 	request-promise do
 		method: 'POST'
@@ -42,16 +50,30 @@ export function execute [, lang, name, code, stdin]
 	.promise!
 
 	.tap ->
+		if lang-obj.type == 'choice'
+			it.Note = "#{possibilities[0]} assumed, run `/alias #lang` to tell me what #lang means for you."
+		else if lang-obj.type == 'unambiguous'
+			possibilities-string = possibilities.slice(1).join(', ')
+			option-is-or-options-are =
+				if possibilities.length > 2
+					"options are"
+				else
+					"option is"
+			it.Note = "#{possibilities[0]} assumed, " +
+				"other valid #option-is-or-options-are #possibilities-string" +
+				", you can be more specific next time."
 		stats.data.executions++
 		stats.data.with-stdin++ if stdin
 
 
-export function command cmd, args
+export function command cmd, args, options={}
 	cmds = lodash(cmd)
 		.cast-array!
 		.join '|'
 	space-and-args =
-		if args
+		if args and options.args-are-optional
+			"(?:\\s+#args)?"
+		else if args
 			"\\s+#args"
 		else ''
 	//^/#cmds(@#botname)?#space-and-args\s*$//i
@@ -60,3 +82,6 @@ export function command cmd, args
 export format-string = 'Ok, give me some %s code to execute'
 
 export language-regex = '[\\w.#+]+'
+
+# require cycle ._.
+require! './alias'

@@ -23,6 +23,7 @@ require! './objects': {
 	promise-me
 }
 
+require! './alias'
 require! './callback-handler'
 require! './constants': {
 	command
@@ -66,6 +67,7 @@ bot.on-text command('lang(uage)?s'), help.send-langs
 bot.on-text command('about'), help.about
 bot.on-text command('stat(istic)?s'), help.send-stats
 bot.on-text command(['help', 'start']), help.help
+bot.on-text command('alias', '([\\s\\S]*?)', args-are-optional: true), alias.handler
 
 
 global.regex = //^/

@@ -2,10 +2,6 @@
 
 require! 'node-telegram-bot-api': 'Bot'
 
-require! './constants': {
-	execute
-	format
-}
 require! './exec-stats'
 require! './responder': Responder
 require! './tips'
@@ -87,3 +83,9 @@ export function respond msg, execution, options = {}
 						inline_keyboard: buttons
 
 	|> responder.respond-object msg, _, err-options
+
+# require cycle ._.
+require! './constants': {
+	execute
+	format
+}

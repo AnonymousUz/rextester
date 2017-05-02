@@ -7,6 +7,7 @@ require!  {
 	'./objects': {bot}
 	'./package.json': package_
 	'./stats'
+	'./redis'
 }
 
 
@@ -37,6 +38,10 @@ export send-langs = (msg) ->
 	.join ', '
 	|> bot.send-message msg.chat.id, _,
 		parse_mode: 'HTML'
+		reply_markup: inline_keyboard: [[
+			text: 'Customize...'
+			url: "t.me/#botname?start=alias"
+		]] if redis
 
 
 export about = (msg) ->

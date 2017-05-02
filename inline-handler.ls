@@ -22,7 +22,7 @@ module.exports = (query) ->
 	if not match_
 		return answer.switch-pm bot, query, "Invalid query syntax", 'help'
 
-	execution = execute match_
+	execution = execute match_, query.from.id
 
 	execution
 	.then (raw) ->

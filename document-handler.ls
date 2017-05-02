@@ -29,7 +29,7 @@ module.exports = (msg) ->
 		.then request-promise.get
 		.then (code) ->
 			lang = language || language-detect.contents file_name, code
-			execute [, lang, , code]
+			execute [, lang, , code], msg.from.id
 		|> respond msg, _
 		).tap ->
 			stats.data.by-type-of-query.documents++

@@ -1,0 +1,4 @@
+# You can keep all of your Redis-related stuff in this directory,
+# you won't accidentally put the in version control
+*
+!.gitignore

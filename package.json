@@ -24,5 +24,8 @@
     "url": "https://bitbucket.org/GingerPlusPlus/rextester-bot.git"
   },
   "author": "GingerPlusPlus <woj.pawlik@gmail.com>",
-  "license": "ISC"
+  "license": "ISC",
+  "optionalDependencies": {
+    "ioredis": "^2.5.0"
+  }
 }

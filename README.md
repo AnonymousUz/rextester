@@ -4,29 +4,39 @@ Telegram bot for executing snippets of code.
 
 ## Setup ##
 
-    npm install
+```bash
+git clone https://bitbucket.org/GingerPlusPlus/rextester-bot.git
+cd rextester-bot
+npm install
+# configure the bot, read further
+npm start
+```
 
-    # without angle brackets
-    export TELEGRAM_BOT_TOKEN=<Telegram bot token>
-    # alternatively, you can put your token in token.json
+## Configuration ##
 
-    # if the app is behind https => http proxy,
-    # and you wish to use Webhook, set also these:
-    export NOW_URL=https://<url to set webhook to>
-    export PORT=<port to listen to updates on>
+You can configure the bot using environmental variables.
+In Bash, they can be set using `export <NAME>=<VALUE>` syntax.
 
-    # For every request to execute some code,
-    # the bot stores some info in memory, so that in case of edit
-    # it knows which message to update. Set that var to X
-    # to clear data about messages older than X seconds, for example
-    export SECS_TO_EDIT=600 # clear data about messages older than 10 minutes.
-    # If you don't set it, bot will never clear any info,
-    # which means it'll eventually take **all** available memory,
-    # and it'll print a warning. If not clearing is what you want,
-    # (for example because bot is periodically restarted)
-    # set it to empty string to suppress the warning:
-    export SECS_TO_EDIT=
+### Basic ###
 
-    npm start
+- `TELEGRAM_BOT_TOKEN` (required) -- the token received from [@BotFather][2]. Alternatively, you can put your token in `token.json`.
+
+### Webhook ###
+
+I think I may have accidentaly broken Webhook support. If you need it, let me know.
+
+### Redis ###
+
+- `REDIS_URL` (optional) -- [`redis://` URL or path to unix socket][3]. If omitted, bot will start without Redis and some non-core functionality will not be available.
+- `ALIAS_STATS` (optional, requires Redis) -- set to anything to enable counting how many times each alias is used by users. It's disabled by default, cause I believe it's one of the worst things that can happen to Redis persistance.
+- `MAX_ALIASES_PER_USER` (defaults to 30) -- limits how many custom aliases single user can set, to prevent abuse of the database.
+- `MAX_ALIAS_LENGTH` (defaults to 32) -- limits length of alias name lengths user is able to create, and disables couting of using such aliases for purpose of `ALIAS_STATS`, to prevent abuse of the database.
+
+### Misc ###
+
+- `SECS_TO_EDIT` -- for every command requesting code execution, the bot stores some **state**, to know which message should be edited in case the message with command gets edited. This variable defines how often that state should be purged. Set to empty string to never clean and let the bot eat all your memory.
+
 
 [1]: https://telegram.me/rextester_bot
+[2]: https://telegram.me/BotFather
+[3]: https://github.com/luin/ioredis#connect-to-redis

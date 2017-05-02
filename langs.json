@@ -1,6 +1,6 @@
 {
 	"c#": 1,
-	"csharp": 1,
+	"csharp": "c#",
 
 	"vb.net": 2,
 	"vb": 2,
@@ -13,14 +13,14 @@
 
 	"c_gcc": 6,
 	"gcc": 6,
-	"c": 6,
+	"c": ["gcc", "clang", "visual_c"],
 
 	"cplusplus_gcc": 7,
-	"cplusplus": 7,
+	"cplusplus": "c++",
 	"g++": 7,
-	"c++": 7,
+	"c++": ["cplusplus_gcc", "cplusplus_clang", "visual_cplusplus"],
 	"cpp_gcc": 7,
-	"cpp": 7,
+	"cpp": "c++",
 
 	"php": 8,
 
@@ -48,7 +48,7 @@
 
 	"common_lisp": 18,
 	"clisp": 18,
-	"lisp": 18,
+	"lisp": ["common_lisp", "scheme"],
 
 	"prolog": 19,
 
@@ -61,11 +61,11 @@
 
 	"node": 23,
 	"javascript": 23,
-	"js": 23,
+	"js": "javascript",
 
 	"python3": 24,
 	"py3": 24,
-	"python": 24,
+	"python": ["python3", "python2"],
 
 	"c_clang": 26,
 	"clang": 26,

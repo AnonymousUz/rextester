@@ -81,7 +81,10 @@ global.regex = //^/
 	)?
 $//i
 
-
+bot.on-text /start reexec(\d+)/, (msg, [, reply_to_message_id]) ->
+	responder.respond-when-ready(msg, 'something', {reply_to_message_id})
+	.then (msg) ->
+		bot.process-update message: msg.reply_to_message
 
 bot.on-text command('cancel'), gimme-code.cancel
 bot.on-text command("(#language-regex)"), gimme-code.missing-source

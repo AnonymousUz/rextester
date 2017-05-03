@@ -1,6 +1,11 @@
 'use strict'
 
-require! './objects': {respond}
+require! 'lodash'
+
+require! './objects': {
+	respond
+	responder
+}
 require! './constants': {execute}
 require! './stats'
 
@@ -10,6 +15,12 @@ module.exports = (msg, match_) ->
 	if verbose
 		console.log msg
 	execution = execute match_
+	.tap ->
+		[, Language, , Source, Stdin] = match_
+
+		result = lodash.defaults {Language, Source, Stdin}, it
+
+		responder.set msg, 'executionResults', result
 
 	(execution
 	|> respond msg, _,

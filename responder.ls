@@ -17,6 +17,14 @@ module.exports = class Responder
 	_get-context: (msg) ->
 		@msgs[[msg.chat.id, msg.message_id]] ?= {ttl: 2}
 
+	set: (msg, key, value) ->
+		context = @_get-context msg
+		context[key] = value
+
+	get: (msg, key) ->
+		context = @_get-context msg
+		Promise.resolve context[key]
+
 	_respond: (msg, reply, content, options) ->
 		s = content.to-string!
 		context = @_get-context msg

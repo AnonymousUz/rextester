@@ -71,10 +71,16 @@ export function respond msg, execution, options = {}
 		]
 
 		if options.share
-			buttons.push [
-				text: 'Share'
-				switch_inline_query: msg.text.slice 1
-			]
+			if msg.chat.type == 'private'
+				buttons.push [
+					text: 'Share'
+					switch_inline_query: '/share ' + msg.message_id
+				]
+			else
+				buttons.push [
+					text: 'Share'
+					switch_inline_query: msg.text.slice 1
+				]
 
 		return
 			res: format it

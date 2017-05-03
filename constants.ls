@@ -76,7 +76,7 @@ export function command cmd, args, options={}
 		else if args
 			"\\s+#args"
 		else ''
-	//^/#cmds(@#botname)?#space-and-args\s*$//i
+	//^/(?:#cmds)(@#botname)?#space-and-args\s*$//i
 
 
 export format-string = 'Ok, give me some %s code to execute'

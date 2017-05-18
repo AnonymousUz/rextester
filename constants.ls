@@ -21,7 +21,7 @@ export function format
 	.join '\n\n'
 
 
-export execute = Promise.coroutine ([, lang, name, code, stdin], uid) ->*
+export execute = Promise.coroutine ([, lang, name, _code, stdin], uid) ->*
 	lang-obj = yield alias.resolve uid, lang
 
 	switch lang-obj.type
@@ -36,6 +36,11 @@ export execute = Promise.coroutine ([, lang, name, code, stdin], uid) ->*
 	| 'resolved'
 		lang-id = lang-obj.resolved
 	| otherwise throw new Error 'wtf'
+
+	if lang-id == langs.php and _code != //<\?php|<\?=//i
+		code = "<?php #_code"
+	else
+		code = _code
 
 	request-promise do
 		method: 'POST'

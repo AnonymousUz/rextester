@@ -1,11 +1,13 @@
 'use strict'
 
 require! 'lodash'
-require! 'scanf': {sscanf}
 require! 'util'
 
 require! './core-command-handler'
-require! './constants': {format-string}
+require! './constants': {
+	format-string
+	regex2part
+}
 require! './langs.json'
 require! './objects': {
 	bot
@@ -53,7 +55,7 @@ export function missing-source(msg, [, command, username])
 export function anything(msg)
 	reply-to = msg.reply_to_message
 	if (reply-to and reply-to.from.username == botname
-			and language = sscanf reply-to.text, format-string)
+			and language = regex2part.exec(reply-to.text)?[1])
 		text = "/#language #{msg.text}"
 		core-command-handler msg with {text, _2part: true}, regex.exec text
 

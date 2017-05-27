@@ -11,8 +11,7 @@
     "lodash": "^4.14.1",
     "node-telegram-bot-api": "^0.26.0",
     "request": "^2.74.0",
-    "request-promise": "^4.1.0",
-    "scanf": "^0.7.3"
+    "request-promise": "^4.1.0"
   },
   "devDependencies": {},
   "scripts": {

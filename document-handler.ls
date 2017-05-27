@@ -2,11 +2,11 @@
 
 require! 'language-detect'
 require! 'request-promise'
-require! 'scanf': {sscanf}
 
 require! './constants': {
 	execute
 	format-string
+	regex2part
 }
 require! './objects': {
 	bot
@@ -19,7 +19,7 @@ module.exports = (msg) ->
 	reply-to = msg.reply_to_message
 
 	if ((reply-to and reply-to.from.username == botname
-			and language = sscanf reply-to.text, format-string)
+			and language = language = regex2part.exec(reply-to.text)?[1])
 
 			or msg.chat.type == 'private')
 

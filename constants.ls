@@ -88,5 +88,7 @@ export format-string = 'Ok, give me some %s code to execute'
 
 export language-regex = '[\\w.#+]+'
 
+export regex2part = new RegExp "^Ok, give me some (#language-regex) code to execute", 'i'
+
 # require cycle ._.
 require! './alias'

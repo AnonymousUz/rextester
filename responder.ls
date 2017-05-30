@@ -44,7 +44,10 @@ module.exports = class Responder
 		reply = context.reply
 
 		context.typing =
-			if reply
+			if context.edit # this is very sensitive check
+			                # changed from if context.reply
+			                # because respond-object
+			                # now gets called BERORE preparing-response-to
 				reply.then (old-msg) ~>
 					@bot.edit-message-text do
 						"#{emoji.hourglass}Processing your edit..."

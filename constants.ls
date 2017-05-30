@@ -1,6 +1,7 @@
 'use strict'
 
 require! 'bluebird': Promise
+require! 'events': Event-emitter
 require! 'lodash'
 require! 'request-promise'
 
@@ -21,54 +22,69 @@ export function format
 	.join '\n\n'
 
 
-export execute = Promise.coroutine ([, lang, name, _code, stdin], uid) ->*
-	lang-obj = yield alias.resolve uid, lang
+export function emitter-to-promise (emitter)
+	new Promise (resolve, reject) ->
+		emitter.on 'resolved', resolve
+		emitter.on 'error', reject
 
-	switch lang-obj.type
-	| 'nothing'
-		error = new Error "Unknown language: #lang."
-		error.quiet = not name
-		error.switch_pm_parameter = 'languages'
-		return Promise.reject error
-	| 'choice', 'unambiguous'
-		possibilities = lang-obj.resolved
-		lang-id = langs[possibilities[0]]
-	| 'resolved'
-		lang-id = lang-obj.resolved
-	| otherwise throw new Error 'wtf'
 
-	if lang-id == langs.php and _code != //<\?php|<\?=//i
-		code = "<?php #_code"
-	else
-		code = _code
+export execute = ([, lang, name, _code, stdin], uid) ->
+	emitter = new Event-emitter
 
-	request-promise do
-		method: 'POST'
-		url: 'http://rextester.com/rundotnet/api'
-		form:
-			LanguageChoice: lang-id
-			Program: code
-			Input: stdin
-			CompilerArgs: compiler-args[lang-id] || ''
-		json: true
+	alias.resolve(uid, lang).then (lang-obj) ->
 
-	.promise!
+		switch lang-obj.type
+		| 'nothing'
+			error = new Error "Unknown language: #lang."
+			error.quiet = not name
+			error.switch_pm_parameter = 'languages'
+			return Promise.reject error
+		| 'choice', 'unambiguous'
+			possibilities = lang-obj.resolved
+			lang-id = langs[possibilities[0]]
+		| 'resolved'
+			lang-id = lang-obj.resolved
+		| otherwise throw new Error 'wtf'
 
-	.tap ->
-		if lang-obj.type == 'choice'
-			it.Note = "#{possibilities[0]} assumed, run `/alias #lang` to tell me what #lang means for you."
-		else if lang-obj.type == 'unambiguous'
-			possibilities-string = possibilities.slice(1).join(', ')
-			option-is-or-options-are =
-				if possibilities.length > 2
-					"options are"
-				else
-					"option is"
-			it.Note = "#{possibilities[0]} assumed, " +
-				"other valid #option-is-or-options-are #possibilities-string" +
-				", you can be more specific next time."
-		stats.data.executions++
-		stats.data.with-stdin++ if stdin
+		emitter.emit 'language-resolved'
+
+		if lang-id == langs.php and _code != //<\?php|<\?=//i
+			code = "<?php #_code"
+		else
+			code = _code
+
+		request-promise do
+			method: 'POST'
+			url: 'http://rextester.com/rundotnet/api'
+			form:
+				LanguageChoice: lang-id
+				Program: code
+				Input: stdin
+				CompilerArgs: compiler-args[lang-id] || ''
+			json: true
+
+		.promise!
+
+		.tap ->
+			if lang-obj.type == 'choice'
+				it.Note = "#{possibilities[0]} assumed, run `/alias #lang` to tell me what #lang means for you."
+			else if lang-obj.type == 'unambiguous'
+				possibilities-string = possibilities.slice(1).join(', ')
+				option-is-or-options-are =
+					if possibilities.length > 2
+						"options are"
+					else
+						"option is"
+				it.Note = "#{possibilities[0]} assumed, " +
+					"other valid #option-is-or-options-are #possibilities-string" +
+					", you can be more specific next time."
+			stats.data.executions++
+			stats.data.with-stdin++ if stdin
+		.then do
+			-> emitter.emit 'resolved', it
+			-> emitter.emit 'error', it
+
+	return emitter
 
 
 export function command cmd, args, options={}

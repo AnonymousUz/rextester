@@ -13,7 +13,7 @@ require! './objects': {
 	bot
 }
 require! './stats'
-require! './tips.ls'
+require! './tips'
 
 
 function format-tip tip

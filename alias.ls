@@ -43,13 +43,6 @@ function resolve-identity lang-query
 		to-string
 	}
 
-function choice-keyboard dest
-	if @type == 'choice'
-		keyboard: @resolved.map(-> ["/alias #dest=#it"]).concat [['/cancel']]
-		resize_keyboard: true
-		one_time_keyboard: true
-		selective: true
-
 
 export resolve =  Promise.coroutine (uid, lang-query, options={}) ->*
 	lower = follow-hardlink(lang-query)
@@ -101,7 +94,7 @@ display-alias = Promise.coroutine (msg, alias, options={}) ->*
 		| not redis or not options.suggestions
 			[]
 		| Array.is-array lang-query-obj.default_
-			lodash.difference lang-query-obj.default_, inverted-by[lang-query-obj.custom]
+			lang-query-obj.default_
 		| lang-query-obj.custom == ':nothing'
 			[':default']
 		| lang-query-obj.resolved == lang-query-obj.custom and lang-query-obj.default_
@@ -115,13 +108,68 @@ display-alias = Promise.coroutine (msg, alias, options={}) ->*
 		parse_mode: 'Markdown'
 		reply_markup:
 			if suggestions.length
-				keyboard: suggestions.map(-> ["/alias #alias=#it"]).concat [['/cancel']]
-				resize_keyboard: true
-				one_time_keyboard: true
-				selective: true
-			else
-				remove_keyboard: true
-				selective: true
+				inline_keyboard: [suggestions.map (text) ->
+					if String(langs[text]) == lang-query-obj.resolved => {
+						text: "#text (current)"
+						callback_data: "noop"
+					} else {
+						text:
+							if suggestions.length == 1
+								"Set to #text"
+							else
+								text
+						callback_data: """
+							setAlias #alias #text
+
+							displayAliasHere #alias
+						"""
+					}
+				]
+
+
+export set = Promise.coroutine (uid, _dest, _src) ->*
+	dest = follow-hardlink _dest
+	if dest.length > max-alias-length
+		throw new Error "Alias name too long"
+	src = _src.to-lower-case!
+	user-string = util.format aliases-format, uid
+	if src == ':default'
+		yield redis.hdel user-string, dest
+		return
+	number-of-aliases = yield redis.hlen user-string
+	if number-of-aliases >= max-number-of-aliases-per-user
+		throw new Error do
+			"
+				You have reached the limit of user-defined aliases (#max-number-of-aliases-per-user). 
+				Set some of your #number-of-aliases aliases to :default and try again.
+			"
+	lang-query-obj =
+		if src == ':nothing' or src == /^\d+$/
+			console.log 'id'
+			resolve-identity src
+		else
+			yield resolve uid, src
+	if lang-query-obj.type == 'resolved'
+		yield redis.hset do
+			user-string
+			dest
+			lang-query-obj.resolved
+	else
+		switch lang-query-obj.type
+		| 'nothing' => throw new Error "I don't know what *#src* is"
+		| 'choice'  =>
+			error = new Error "*#src* can refer to #{lang-query-obj.resolved} -- which one do you mean?"
+			error.reply_markup = inline_keyboard:
+				[lang-query-obj.resolved.map (text) -> {
+					text
+					callback_data: """
+					setAlias #_dest #text
+
+					displayAliasHere #_dest
+					"""
+				}]
+			throw error
+		| otherwise => throw new Error "This should never happen."
 
 
 export handler = Promise.coroutine (msg, [, name, arg='']) ->*
@@ -134,45 +182,13 @@ export handler = Promise.coroutine (msg, [, name, arg='']) ->*
 			'Not available, not connected to Redis'
 	else if match_ = arg == //(#language-regex)\s*=\s*(\:?#language-regex)//
 		[, _dest, _src] = match_
-		dest = follow-hardlink _dest
-		if dest.length > max-alias-length
-			bot.send-message msg.chat.id, "Alias name too long"
-			return
-		src = _src.to-lower-case!
-		user-string = util.format aliases-format, msg.from.id
-		if src == ':default'
-			yield redis.hdel user-string, dest
-			display-alias msg, dest
-			return
-		number-of-aliases = yield redis.hlen user-string
-		if number-of-aliases >= max-number-of-aliases-per-user
-			bot.send-message do
-				msg.chat.id
-				"
-					You have reached the limit of user-defined aliases (#max-number-of-aliases-per-user). 
-					Set some of your #number-of-aliases aliases to :default and try again.
-				"
-			return
-		lang-query-obj =
-			if src == ':nothing' or src == /^\d+$/
-				resolve-identity src
-			else
-				yield resolve msg.from.id, src
-		if lang-query-obj.type == 'resolved'
-			yield redis.hset do
-				user-string
-				dest
-				lang-query-obj.resolved
-			display-alias msg, dest
-		else
-			switch lang-query-obj.type
-			| 'nothing' => "I don't know what *#src* is"
-			| 'choice'  => "*#src* can refer to #{lang-query-obj.resolved} -- which one do you mean?"
-			| otherwise => throw new Error "This should never happen."
-			|> bot.send-message msg.chat.id, _,
-				parse_mode: 'Markdown'
-				reply_markup: lang-query-obj.choice-keyboard dest
-					
+		set msg.from.id, _dest, _src
+		.then  -> display-alias msg, _dest
+		.catch -> bot.send-message do
+			msg.chat.id
+			it.to-string!
+			parse_mode: 'Markdown'
+			reply_markup: it.reply_markup
 	else
 		bot.send-message do
 			msg.chat.id

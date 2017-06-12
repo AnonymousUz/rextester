@@ -59,11 +59,15 @@ export function respond msg, execution, options = {}
 		delete it.Stats
 		it.Tip = tips.process-output it or tips.process-input msg if options.tip
 		stats.data.users.add msg.from.id
-		buttons = [
-			[
-				text: 'See stats'
-				callback_data: "showExecStats\n#exec-stats_"
-			]
+		buttons = []
+		if it[possibilities]
+			buttons.push it[possibilities].map (text, idx) -> {
+				text
+				callback_data: 'noop'
+			}
+		buttons.push [
+			text: 'See stats'
+			callback_data: "showExecStats\n#exec-stats_"
 		]
 
 		if options.share
@@ -89,4 +93,5 @@ require! './constants': {
 	emitter-to-promise
 	execute
 	format
+	possibilities
 }

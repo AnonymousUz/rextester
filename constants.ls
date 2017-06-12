@@ -28,6 +28,9 @@ export function emitter-to-promise (emitter)
 		emitter.on 'error', reject
 
 
+export possibilities = Symbol('possibilities')
+
+
 export execute = ([, lang, name, _code, stdin], uid) ->
 	emitter = new Event-emitter
 
@@ -67,7 +70,7 @@ export execute = ([, lang, name, _code, stdin], uid) ->
 
 		.tap ->
 			if lang-obj.type == 'choice'
-				it.Note = "#{possibilities[0]} assumed, run `/alias #lang` to tell me what #lang means for you."
+				it[exports.possibilities] = possibilities
 			else if lang-obj.type == 'unambiguous'
 				possibilities-string = possibilities.slice(1).join(', ')
 				option-is-or-options-are =

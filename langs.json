@@ -18,7 +18,7 @@
 	"cplusplus_gcc": 7,
 	"cplusplus": "c++",
 	"g++": 7,
-	"c++": ["cplusplus_gcc", "cplusplus_clang", "visual_cplusplus"],
+	"c++": ["cpp_gcc", "cpp_clang", "visual_cpp"],
 	"cpp_gcc": 7,
 	"cpp": "c++",
 

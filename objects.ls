@@ -60,10 +60,18 @@ export function respond msg, execution, options = {}
 		it.Tip = tips.process-output it or tips.process-input msg if options.tip
 		stats.data.users.add msg.from.id
 		buttons = []
+		[lang] = msg.text.slice(1).match(language-regex)
 		if it[possibilities]
 			buttons.push it[possibilities].map (text, idx) -> {
 				text
-				callback_data: 'noop'
+				callback_data: "setAlias #lang #text" + (
+					if idx == 0
+						""
+					else if msg._2part
+						"\n\nif queryFromOriginalRequester rerunAs #text"
+					else
+						"\n\nif queryFromOriginalRequester reprocess"
+				)
 			}
 		buttons.push [
 			text: 'See stats'
@@ -93,5 +101,6 @@ require! './constants': {
 	emitter-to-promise
 	execute
 	format
+	language-regex
 	possibilities
 }

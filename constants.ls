@@ -13,6 +13,7 @@ require! './stats'
 export function format
 	lodash it
 	.pick-by! # ignore empty values
+	.map-values (.replace /\0/g, '\u2400')
 	.map-values lodash.escape
 	.map (val, key) ->
 		"""
@@ -48,10 +49,14 @@ export execute = ([, lang, name, _code, stdin], uid) ->
 
 		emitter.emit 'language-resolved'
 
+		var code
+
 		if lang-id == langs.php and _code != //<\?php|<\?=//i
 			code = "<?php #_code"
 		else
 			code = _code
+
+		code .= replace(/«/g, '<<').replace(/»/g, '>>')
 
 		request-promise do
 			method: 'POST'

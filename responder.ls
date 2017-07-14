@@ -6,6 +6,9 @@ require! {
 	'./emoji.json'
 }
 
+rejected = Promise.reject new Error
+rejected.suppress-unhandled-rejections!
+
 module.exports = class Responder
 	(@bot, @options) ->
 		@msgs = {}
@@ -20,7 +23,7 @@ module.exports = class Responder
 	_respond: (msg, reply, content, options) ->
 		s = content.to-string!
 		context = @_get-context msg
-		(reply || Promise.reject!)
+		(reply || rejected)
 		.then (old-msg) ~>
 			@bot.edit-message-text do
 				s

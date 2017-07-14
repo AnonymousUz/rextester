@@ -85,9 +85,9 @@ export execute = ([, lang, name, _code, stdin], uid) ->
 					", you can be more specific next time."
 			stats.data.executions++
 			stats.data.with-stdin++ if stdin
-		.then do
-			-> emitter.emit 'resolved', it
-			-> emitter.emit 'error', it
+	.then do
+		-> emitter.emit 'resolved', it
+		-> emitter.emit 'error', it
 
 	return emitter
 

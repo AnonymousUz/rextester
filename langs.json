@@ -104,5 +104,11 @@
 
 	"elixir": 41,
 
-	"ocaml": 42
+	"ocaml": 42,
+
+	"kotlin": 43,
+
+	"brainfuck": 44,
+
+	"fortran": 45
 }

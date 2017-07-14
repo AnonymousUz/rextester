@@ -2,7 +2,6 @@
   "name": "rextester-bot",
   "version": "2.11.0",
   "description": "Telegram bot (@rextester_bot) for executing snippets of code",
-  "main": "main.ls",
   "dependencies": {
     "bluebird": "^3.4.6",
     "duration": "^0.2.0",

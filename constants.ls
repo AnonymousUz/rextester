@@ -22,7 +22,40 @@ export function format
 	.join '\n\n'
 
 
-export execute = Promise.coroutine ([, lang, name, _code, stdin], uid, on-resolved=lodash.noop) ->*
+export execute = Promise.coroutine ([, _lang, name, _code, stdin], uid, on-resolved=lodash.noop) ->*
+	var code
+	code = _code
+
+	if _lang.to-lower-case! == 'javarepl'
+		lang = 'java'
+		code = "class Rextester {
+			public static void main(String[] argv) {
+				#code
+			}
+		}"
+	else if _lang.to-lower-case! in ['c#repl', 'csharprepl']
+		lang = 'c#'
+		code = "
+			using System;
+			using System.Collections.Generic;
+			using System.Linq;
+			using System.Text.RegularExpressions;
+
+			namespace Rextester
+			{
+				public class Program
+				{
+					public static void Main(string[] args)
+					{
+						#code
+					}
+				}
+			}"
+	else
+		lang = _lang
+
+
+
 	lang-obj = yield alias.resolve uid, lang
 
 	switch lang-obj.type
@@ -40,12 +73,8 @@ export execute = Promise.coroutine ([, lang, name, _code, stdin], uid, on-resolv
 
 	on-resolved!
 
-	var code
-
-	if lang-id == langs.php and _code != //<\?php|<\?=//i
-		code = "<?php #_code"
-	else
-		code = _code
+	if lang-id == langs.php and code != //<\?php|<\?=//i
+		code = "<?php #code"
 
 	code .= replace(/«/g, '<<').replace(/»/g, '>>')
 

@@ -30,6 +30,6 @@ module.exports = (msg) ->
 		.then (code) ->
 			lang = language || language-detect.contents file_name, code
 			execute [, lang, , code], msg.from.id
-		.then -> respond msg, it
+		|> respond msg, _
 		).tap ->
 			stats.data.by-type-of-query.documents++

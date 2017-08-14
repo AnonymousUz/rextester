@@ -40,7 +40,7 @@ export responder = new Responder bot, {
 export function respond msg, execution, options = {}
 	need-remove-keyboard = msg._2part and not msg._edit
 
-	execution.once 'language-resolved', ->
+	if execution.is-pending!
 		# fails when message we were trying to edit has remove_keyboard
 		responder.preparing-response-to msg
 		# .suppressUnhandledRejections didn't work here
@@ -53,7 +53,7 @@ export function respond msg, execution, options = {}
 	err-options = reply_markup: remove_keyboard
 
 
-	emitter-to-promise(execution)
+	process = execution
 	.then ->
 		exec-stats_ = exec-stats.compress it.Stats
 		delete it.Stats
@@ -86,7 +86,6 @@ export function respond msg, execution, options = {}
 
 # require cycle ._.
 require! './constants': {
-	emitter-to-promise
 	execute
 	format
 }

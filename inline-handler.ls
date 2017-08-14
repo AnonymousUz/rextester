@@ -6,7 +6,6 @@ require! 'request-promise'
 require! './answer'
 require! './compiler-args.json'
 require! './constants': {
-	emitter-to-promise
 	execute
 	format
 }
@@ -25,7 +24,7 @@ module.exports = (query) ->
 
 	execution = execute match_, query.from.id
 
-	emitter-to-promise(execution)
+	execution
 	.then (raw) ->
 		[, Language, , Source, Stdin] = match_
 

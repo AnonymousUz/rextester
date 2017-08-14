@@ -37,14 +37,15 @@ export responder = new Responder bot, {
 }
 
 
+export typing = (msg) -> ->
+	# fails when message we were trying to edit has remove_keyboard
+	responder.preparing-response-to msg
+	# .suppressUnhandledRejections didn't work here
+	.catch-return!
+
+
 export function respond msg, execution, options = {}
 	need-remove-keyboard = msg._2part and not msg._edit
-
-	if execution.is-pending!
-		# fails when message we were trying to edit has remove_keyboard
-		responder.preparing-response-to msg
-		# .suppressUnhandledRejections didn't work here
-		.catch-return!
 
 	remove_keyboard =
 		remove_keyboard: true

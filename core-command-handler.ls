@@ -1,6 +1,9 @@
 'use strict'
 
-require! './objects': {respond}
+require! './objects': {
+	typing
+	respond
+}
 require! './constants': {execute}
 require! './stats'
 
@@ -9,7 +12,7 @@ module.exports = (msg, match_) ->
 	msg._handled = true
 	if verbose
 		console.log msg
-	execution = execute match_, msg.from.id
+	execution = execute match_, msg.from.id, typing(msg)
 
 	(execution
 	|> respond msg, _,

@@ -22,7 +22,7 @@ export function format
 	.join '\n\n'
 
 
-export execute = Promise.coroutine ([, lang, name, _code, stdin], uid) ->*
+export execute = Promise.coroutine ([, lang, name, _code, stdin], uid, on-resolved=lodash.noop) ->*
 	lang-obj = yield alias.resolve uid, lang
 
 	switch lang-obj.type
@@ -37,6 +37,8 @@ export execute = Promise.coroutine ([, lang, name, _code, stdin], uid) ->*
 	| 'resolved'
 		lang-id = lang-obj.resolved
 	| otherwise throw new Error 'wtf'
+
+	on-resolved!
 
 	var code
 

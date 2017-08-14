@@ -57,6 +57,7 @@ global.botname = me.username
 # Maybe it's slower than previous implementation,
 # but I believe it's cleaner?
 # I may be able to design it better next time.
+require! './execurl'
 require! './gimme-code'
 require! './help'
 
@@ -68,6 +69,7 @@ bot.on-text command('about'), help.about
 bot.on-text command('stat(istic)?s'), help.send-stats
 bot.on-text command(['help', 'start']), help.help
 bot.on-text command('alias', '([\\s\\S]*?)', args-are-optional: true), alias.handler
+bot.on-text execurl.regex, execurl.handler
 
 
 global.regex = //^/

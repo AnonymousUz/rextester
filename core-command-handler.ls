@@ -12,6 +12,8 @@ module.exports = (msg, match_) ->
 	msg._handled = true
 	if verbose
 		console.log msg
+	# match_[4] == stdin
+	match_[4] ?= msg.reply_to_message?.text
 	execution = execute match_, msg.from.id, typing(msg)
 
 	(execution

@@ -22,9 +22,9 @@ export function handler msg, match_
 	[, name, lang, url, stdin] = match_
 	if url != /^http/
 		url = "http://#url"
-	if match2 = url == //^https?:\/\/(?:www\.)?pastebin.com/(\w+)$//
-		[, id] = match2
-		url = "https://pastebin.com/raw/#id"
+	if match2 = url == //^https?:\/\/(?:www\.)?(pastebin.com|hastebin.com)/([.\w]+)$//
+		[, service, id] = match2
+		url = "https://#service/raw/#id"
 	stdin ?= msg.reply_to_message?.text
 	request-promise.get(url)
 	.then -> execute [, lang, name, it, stdin], msg.from.id

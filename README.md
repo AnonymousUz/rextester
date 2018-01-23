@@ -42,4 +42,4 @@ I think I may have accidentaly broken Webhook support. If you need it, let me kn
 [1]: https://telegram.me/rextester_bot
 [2]: https://telegram.me/BotFather
 [3]: https://github.com/luin/ioredis#connect-to-redis
-[4]: https://github.com/GingerPlusPlus/Rextester-bot-v3**
+[4]: https://github.com/GingerPlusPlus/Rextester-bot-v3

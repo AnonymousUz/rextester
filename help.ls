@@ -48,9 +48,10 @@ export about = (msg) ->
 	bot.send-message do
 		msg.chat.id
 		"""
-		Created by @GingerPlusPlus, powered by rextester.com.
+		Created by [@GingerPlusPlus](t.me/GingerPlusPlus), powered by rextester.com.
 		"""
 		disable_web_page_preview: true
+		parse_mode: 'Markdown'
 		reply_markup: inline_keyboard:
 			[
 				{

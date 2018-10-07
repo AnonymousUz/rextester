@@ -80,7 +80,7 @@ export execute = Promise.coroutine ([, _lang, name, _code, stdin], uid, on-resol
 
 	request-promise do
 		method: 'POST'
-		url: 'http://rextester.com/rundotnet/api'
+		url: 'https://rextester.com/rundotnet/api'
 		form:
 			LanguageChoice: lang-id
 			Program: code

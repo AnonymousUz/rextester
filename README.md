@@ -25,7 +25,8 @@ In Bash, they can be set using `export <NAME>=<VALUE>` syntax.
 
 ### Webhook ###
 
-I think I may have accidentaly broken Webhook support. If you need it, let me know.
+- `NOW_URL` -- url to set webhook to
+- `PORT` -- port to listen to updates on
 
 ### Redis ###
 

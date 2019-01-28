@@ -41,6 +41,7 @@ global.verbose = lodash process.argv
 	.slice 2
 	.some -> it == '-v' or it == '--verbose'
 
+token = process.env.TELEGRAM_BOT_TOKEN || require './token.json'
 url = process.env.NOW_URL
 
 

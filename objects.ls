@@ -8,6 +8,7 @@ require! './tips'
 require! './stats'
 
 token = process.env.TELEGRAM_BOT_TOKEN || require './token.json'
+url = process.env.NOW_URL
 
 secs-to-edit = process.env.SECS_TO_EDIT
 
@@ -26,6 +27,11 @@ options =
 				if not data.ok
 					request.body = data.description
 			return request
+	web-hook:
+		if url
+			host: '0.0.0.0'
+			port: process.env.PORT
+			auto-open: false
 
 
 export bot = new Bot token, options
